@@ -471,7 +471,7 @@ baseUrl: 'http://localhost:8081'
 
 ## 👤 Author
 
-Created as a demonstration of Cypress offline testing capabilities.
+Saran Kumar
 
 ---
 
