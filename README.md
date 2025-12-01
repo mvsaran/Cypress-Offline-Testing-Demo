@@ -6,6 +6,8 @@ This project demonstrates **three different approaches** to test offline scenari
 
 ## 📋 Table of Contents
 - [Overview](#overview)
+- [Live Demo](#live-demo)
+- [Key Takeaways](#key-takeaways)
 - [Folder Structure](#folder-structure)
 - [Prerequisites](#prerequisites)
 - [Implementation from Scratch](#implementation-from-scratch)
@@ -23,6 +25,114 @@ This demo application showcases how to test various offline scenarios using Cypr
 3. **Manual Event Triggering** for offline/online events
 
 The application includes a simple UI that displays network status and fetches user data from an external API, making it perfect for demonstrating offline behavior testing.
+
+---
+
+## 🎬 Live Demo
+
+Here's what happens when you run the tests:
+
+```
+Running: offline.cy.js (1 of 1)
+
+Offline Testing Scenarios
+  ✓ Scenario 1: Full Offline Mode (CDP) - Checks UI Indicator (425ms)
+  ✓ Scenario 2: Network Request Failure (cy.intercept) - Checks Error Handling (564ms)
+  ✓ Scenario 3: Manual Event Triggering - Checks Event Listeners (117ms)
+
+3 passing (1s)
+
+┌────────────────────────────────────────────────────────────────────┐
+│ Tests:        3                                                    │
+│ Passing:      3                                                    │
+│ Failing:      0                                                    │
+│ Pending:      0                                                    │
+│ Skipped:      0                                                    │
+│ Screenshots:  0                                                    │
+│ Video:        false                                                │
+│ Duration:     1 second                                             │
+│ Spec Ran:     offline.cy.js                                        │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+### Test Execution Flow
+
+**Scenario 1: Full Offline Mode (CDP)**
+```
+1. Browser starts ONLINE → Network status banner is HIDDEN
+2. Execute goOffline() → Chrome DevTools Protocol activates
+3. Browser goes OFFLINE → 'offline' event fires
+4. App detects offline state → Banner becomes VISIBLE
+5. Cypress verifies: "You are currently offline" message appears
+6. Execute goOnline() → Browser reconnects → Banner HIDES
+```
+
+**Scenario 2: Network Request Failure (cy.intercept)**
+```
+1. Setup intercept to force network error on API call
+2. User clicks "Fetch Users" button
+3. Cypress intercepts the request → Forces network error
+4. App's catch block executes → Error message displays
+5. Cypress verifies: Error message visible, no user cards rendered
+```
+
+**Scenario 3: Manual Event Triggering**
+```
+1. Get window object via cy.window()
+2. Stub navigator.onLine = false
+3. Manually dispatch 'offline' event
+4. App's event listener fires → Banner shows
+5. Stub navigator.onLine = true
+6. Dispatch 'online' event → Banner hides
+```
+
+---
+
+## 🔑 Key Takeaways
+
+### Comparison of Testing Approaches
+
+| Feature | Scenario 1 (CDP) | Scenario 2 (Intercept) | Scenario 3 (Manual) |
+|---------|------------------|------------------------|---------------------|
+| **Method** | Chrome DevTools Protocol | cy.intercept() | JavaScript Events |
+| **Network Actually Offline?** | ✅ Yes | ❌ No | ❌ No |
+| **Triggers Browser Events?** | ✅ Yes | ❌ No | ✅ Yes (manually) |
+| **Blocks API Requests?** | ✅ All requests | ✅ Specific requests | ❌ No |
+| **Browser Support** | Chrome only | All browsers | All browsers |
+| **Best For** | PWA, Service Workers | API error handling | Event listener testing |
+| **Execution Speed** | Slower (425ms) | Medium (564ms) | Fastest (117ms) |
+| **Realism** | Most realistic | Partially realistic | Simulated only |
+
+### When to Use Each Approach
+
+**Use Scenario 1 (CDP)** when:
+- Testing Progressive Web Apps (PWA)
+- Validating Service Worker caching
+- Testing complete offline experience
+- Need to trigger real browser offline events
+- Only targeting Chromium-based browsers
+
+**Use Scenario 2 (Intercept)** when:
+- Testing API error handling logic
+- Simulating intermittent network failures
+- Testing retry mechanisms
+- Need cross-browser compatibility
+- Want to fail specific requests while keeping others working
+
+**Use Scenario 3 (Manual)** when:
+- Testing event listener logic
+- Need fastest test execution
+- Testing on Firefox or other non-Chromium browsers
+- Only testing UI response to events (not actual network behavior)
+- Unit testing offline/online event handlers
+
+### Summary
+
+1. **Scenario 1 (CDP)** - Most realistic, actually disconnects the browser from the network
+2. **Scenario 2 (Intercept)** - Most practical for API testing, works across all browsers
+3. **Scenario 3 (Manual)** - Fastest and most compatible, but only simulates events
+
+Each approach tests different aspects of offline functionality, and combining all three provides comprehensive coverage.
 
 ---
 
